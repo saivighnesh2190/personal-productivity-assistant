@@ -15,6 +15,8 @@ const Dashboard = () => {
   });
   const [dailySummary, setDailySummary] = useState('');
   const [insights, setInsights] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(true);
+  const [aiError, setAiError] = useState(null);
   const [taskTrends, setTaskTrends] = useState([]);
   const [priorityDistribution, setPriorityDistribution] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +28,11 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      
+      setIsAiLoading(true);
+      setAiError(null);
+      setDailySummary('');
+      setInsights('');
+
       // Fetch tasks and notes
       const [tasksRes, notesRes, overdueRes] = await Promise.all([
         tasksAPI.getAll(),
@@ -92,22 +98,28 @@ const Dashboard = () => {
       }
       setTaskTrends(trends);
 
-      // Fetch AI summaries
-      try {
-        const [summaryRes, insightsRes] = await Promise.all([
-          aiAPI.getDailySummary(),
-          aiAPI.getInsights()
-        ]);
-        setDailySummary(summaryRes.data.summary);
-        setInsights(insightsRes.data.insights);
-      } catch (error) {
-        console.error('Error fetching AI data:', error);
-      }
-
+      setIsLoading(false);
+      fetchAiData();
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-    } finally {
       setIsLoading(false);
+      setIsAiLoading(false);
+    }
+  };
+
+  const fetchAiData = async () => {
+    try {
+      const [summaryRes, insightsRes] = await Promise.all([
+        aiAPI.getDailySummary(),
+        aiAPI.getInsights()
+      ]);
+      setDailySummary(summaryRes.data.summary);
+      setInsights(insightsRes.data.insights);
+    } catch (error) {
+      console.error('Error fetching AI data:', error);
+      setAiError('Unable to load AI insights right now.');
+    } finally {
+      setIsAiLoading(false);
     }
   };
 
@@ -227,7 +239,13 @@ const Dashboard = () => {
               <TrendingUp className="w-5 h-5 mr-2" />
               Daily Summary
             </h2>
-            <p className="text-gray-700 whitespace-pre-wrap">{dailySummary || 'Loading daily summary...'}</p>
+            {isAiLoading ? (
+              <p className="text-gray-500">Loading daily summary...</p>
+            ) : aiError ? (
+              <p className="text-red-500">{aiError}</p>
+            ) : (
+              <p className="text-gray-700 whitespace-pre-wrap">{dailySummary || 'No summary available yet.'}</p>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -235,7 +253,13 @@ const Dashboard = () => {
               <TrendingUp className="w-5 h-5 mr-2" />
               AI Insights
             </h2>
-            <p className="text-gray-700 whitespace-pre-wrap">{insights || 'Loading insights...'}</p>
+            {isAiLoading ? (
+              <p className="text-gray-500">Loading insights...</p>
+            ) : aiError ? (
+              <p className="text-red-500">{aiError}</p>
+            ) : (
+              <p className="text-gray-700 whitespace-pre-wrap">{insights || 'No insights available yet.'}</p>
+            )}
           </div>
         </div>
       </div>
