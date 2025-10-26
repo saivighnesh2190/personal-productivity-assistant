@@ -6,6 +6,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
+ENV ROLLUP_NO_NATIVE=1
+RUN npm install --omit=optional --no-audit --no-fund
 RUN npm ci
 
 # Copy source code
