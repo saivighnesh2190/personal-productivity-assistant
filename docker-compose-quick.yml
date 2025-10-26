@@ -1,0 +1,47 @@
+# Quick Docker Compose - Everything runs in containers, no local dependencies needed!
+# This setup uses pre-built images for faster startup
+
+services:
+  # MySQL Database (no local installation needed!)
+  mysql:
+    image: mysql:8.0
+    container_name: prod-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ai_assistant
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: dbpassword
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - prod-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+
+  # Frontend (already built)
+  frontend:
+    image: personal-productivity-assistant-frontend:latest
+    container_name: prod-frontend
+    ports:
+      - "3000:80"
+    networks:
+      - prod-network
+    depends_on:
+      - mysql
+    restart: unless-stopped
+
+networks:
+  prod-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Connection</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testRegister()">Test Register</button>
+    <button onclick="testHealth()">Test Health</button>
+    <div id="result"></div>
+
+    <script>
+        async function testRegister() {
+            const resultDiv = document.getElementById('result');
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'testuser' + Math.random(),
+                        email: 'test' + Math.random() + '@test.com',
+                        password: 'password123',
+                        fullName: 'Test User'
+                    })
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<pre>Status: ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<pre>Error: ${error}</pre>`;
+            }
+        }
+
+        async function testHealth() {
+            const resultDiv = document.getElementById('result');
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/register', {
+                    method: 'OPTIONS'
+                });
+                
+                resultDiv.innerHTML = `<pre>Status: ${response.status}\nHeaders: ${JSON.stringify([...response.headers.entries()], null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<pre>Error: ${error}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>
