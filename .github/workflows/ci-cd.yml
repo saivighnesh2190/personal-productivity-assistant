@@ -69,6 +69,10 @@ jobs:
       env:
         ROLLUP_NO_NATIVE: 1
       run: npm install --no-audit --no-fund
+
+    - name: Install Rollup native binary
+      working-directory: ./frontend
+      run: npm install @rollup/rollup-linux-x64-gnu@4.52.5 --no-save --no-audit --no-fund
     
     - name: Run linter
       working-directory: ./frontend

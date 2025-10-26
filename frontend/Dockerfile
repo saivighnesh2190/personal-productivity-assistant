@@ -8,13 +8,12 @@ COPY package*.json ./
 # Install dependencies
 ENV ROLLUP_NO_NATIVE=1
 RUN npm install --omit=optional --no-audit --no-fund
-RUN npm ci
 
 # Copy source code
 COPY . .
 
 # Install rollup platform-specific modules and build
-RUN npm install @rollup/rollup-linux-x64-gnu --save-optional && npm run build
+RUN npm install @rollup/rollup-linux-x64-gnu@4.52.5 --no-save --no-audit --no-fund && npm run build
 
 # Production stage with nginx
 FROM nginx:alpine
