@@ -66,6 +66,8 @@ jobs:
     
     - name: Install dependencies
       working-directory: ./frontend
+      env:
+        ROLLUP_NO_NATIVE: 1
       run: npm install --no-audit --no-fund
     
     - name: Run linter
@@ -74,6 +76,8 @@ jobs:
     
     - name: Build frontend
       working-directory: ./frontend
+      env:
+        ROLLUP_NO_NATIVE: 1
       run: npm run build
 
   build-and-push:
